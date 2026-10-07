@@ -247,3 +247,136 @@
     font-size: 28px;
   }
 }
+.erp-topbar {
+  justify-content: space-between;
+  gap: 16px;
+}
+.topbar-account {
+  position: static;
+  margin-left: auto;
+  min-width: 0;
+}
+.topbar-settings {
+  color: white;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+.topbar-settings:hover,
+.topbar-settings[aria-current='page'] {
+  background: #ffffff26;
+}
+.topbar-settings:focus-visible {
+  outline: 3px solid #bbf7d0;
+  outline-offset: 2px;
+}
+.account-avatar {
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #dcfce7;
+  color: #166534;
+}
+.account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.account-name {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+.topbar-account .signout-button {
+  background: #bbf7d0;
+  color: #14532d;
+  white-space: nowrap;
+}
+.topbar-account .signout-button:hover {
+  background: #86efac;
+}
+.settings-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+.settings-tabs a {
+  color: #254153;
+  text-decoration: none;
+  padding: 10px 16px;
+  background: #fff;
+  border-radius: 8px;
+}
+.settings-tabs a[aria-current='page'] {
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 600;
+}
+.account-settings {
+  max-width: 560px;
+}
+.account-settings form {
+  display: grid;
+  gap: 18px;
+}
+.profile-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 28px;
+  font-weight: 600;
+}
+.profile-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.settings-note,
+.account-settings small {
+  color: #64748b;
+  font-size: 13px;
+}
+@media (max-width: 900px) {
+  .erp-topbar {
+    padding-left: 52px;
+  }
+}
+@media (max-width: 600px) {
+  .erp-topbar {
+    height: 56px;
+    gap: 6px;
+    padding-right: 8px;
+    font-size: 12px;
+    flex-wrap: nowrap;
+  }
+  .erp-topbar > span {
+    display: none;
+  }
+  .erp-sidebar {
+    top: 56px;
+  }
+  .erp-content {
+    padding-top: 72px;
+  }
+  .topbar-account {
+    gap: 6px;
+  }
+  .account-avatar {
+    display: grid;
+    width: 28px;
+    height: 28px;
+  }
+  .account-name {
+    max-width: 80px;
+  }
+  .topbar-settings,
+  .topbar-account .signout-button {
+    padding: 8px;
+  }
+}

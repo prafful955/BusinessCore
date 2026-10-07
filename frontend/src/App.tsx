@@ -1,3 +1,5 @@
+﻿import SettingsPage from './pages/settings/SettingsPage';
+import { readAccountSettings } from './pages/settings/account.settings';
 import { businessRoute } from './pages/business/BusinessRoute';
 import { useEffect, useState } from 'react';
 import AppLayout from './layouts/AppLayout';
@@ -11,12 +13,12 @@ import RoleDetails from './pages/role/RoleDetails';
 import DashboardPage from './pages/dashboard/DashboardPage';
 
 // Hash routes support direct links and browser history without extra dependencies.
-function currentRoute()
-{
+function currentRoute() {
   return window.location.hash.slice(1) || '/login';
 }
 export default function App() {
   const [user, setUser] = useState('');
+  const [oProfileL, setProfile] = useState(() => readAccountSettings(''));
   const [route, setRoute] = useState(currentRoute);
   useEffect(() => {
     const updateRoute = () => setRoute(currentRoute());
@@ -28,6 +30,7 @@ export default function App() {
       <LoginPage
         onLogin={(zEmailP) => {
           setUser(zEmailP);
+          setProfile(readAccountSettings(zEmailP));
           window.location.hash = '/dashboard';
         }}
       />
@@ -36,7 +39,9 @@ export default function App() {
   const roleMatch = route.match(/^\/roles\/(\d+)(\/edit)?$/);
   const businessPage = businessRoute(route);
   let page;
-  if (route === '/dashboard') page = <DashboardPage />;
+  if (route === '/settings')
+    page = <SettingsPage user={user} profile={oProfileL} onSave={setProfile} />;
+  else if (route === '/dashboard') page = <DashboardPage />;
   else if (businessPage) page = businessPage;
   else if (route === '/employees') page = <EmployeeManager />;
   else if (route === '/roles') page = <RoleManager />;
@@ -65,6 +70,7 @@ export default function App() {
   return (
     <AppLayout
       user={user}
+      profile={oProfileL}
       onSignOut={() => {
         setUser('');
         window.location.hash = '/login';

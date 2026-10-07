@@ -1,50 +1,56 @@
+﻿import type { AccountSettings } from '../pages/settings/account.settings';
 import { useState, type ReactNode } from 'react';
 import { permissionModules } from '../pages/role/role.types';
 
 export default function AppLayout({
   user: zUserP,
+  profile: oProfileP,
   onSignOut: onSignOutP,
   children: oChildrenP,
 }: {
   user: string;
+  profile: AccountSettings;
   onSignOut: () => void;
   children: ReactNode;
 }) {
   const [bSidebarOpenL, setSidebarOpen] = useState(false);
   const zRouteL = window.location.hash.slice(1) || '/dashboard';
-  const zTitleL = zRouteL.startsWith('/employees')
-    ? 'Employees'
-    : zRouteL.startsWith('/roles')
-      ? 'User roles'
-      : zRouteL.startsWith('/customers')
-        ? 'Customers'
-        : zRouteL.startsWith('/quotations')
-          ? 'Quotations'
-          : zRouteL.startsWith('/sales-invoices')
-            ? 'Sales invoices'
-            : zRouteL.startsWith('/invoices')
-              ? 'Invoices'
-              : zRouteL.startsWith('/lookup-values')
-                ? 'Lookup values'
-                : zRouteL.startsWith('/companies')
-                  ? 'Companies'
-                  : zRouteL.startsWith('/business-locations')
-                    ? 'Business locations'
-                    : zRouteL.startsWith('/warehouses')
-                      ? 'Warehouses'
-                      : zRouteL.startsWith('/orders')
-                        ? 'Orders'
-                        : zRouteL.startsWith('/purchase-orders')
-                          ? 'Purchase orders'
-                          : zRouteL.startsWith('/purchases')
-                            ? 'Purchases'
-                            : zRouteL.startsWith('/stock-transfers')
-                              ? 'Stock transfers'
-                              : zRouteL.startsWith('/stocks')
-                                ? 'Stock'
-                                : zRouteL.startsWith('/categories')
-                                  ? 'Categories'
-                                  : 'Dashboard';
+  const zTitleL =
+    zRouteL === '/settings' || zRouteL === '/print-settings'
+      ? 'Settings'
+      : zRouteL.startsWith('/employees')
+        ? 'Employees'
+        : zRouteL.startsWith('/roles')
+          ? 'User roles'
+          : zRouteL.startsWith('/customers')
+            ? 'Customers'
+            : zRouteL.startsWith('/quotations')
+              ? 'Quotations'
+              : zRouteL.startsWith('/sales-invoices')
+                ? 'Sales invoices'
+                : zRouteL.startsWith('/invoices')
+                  ? 'Invoices'
+                  : zRouteL.startsWith('/lookup-values')
+                    ? 'Lookup values'
+                    : zRouteL.startsWith('/companies')
+                      ? 'Companies'
+                      : zRouteL.startsWith('/business-locations')
+                        ? 'Business locations'
+                        : zRouteL.startsWith('/warehouses')
+                          ? 'Warehouses'
+                          : zRouteL.startsWith('/orders')
+                            ? 'Orders'
+                            : zRouteL.startsWith('/purchase-orders')
+                              ? 'Purchase orders'
+                              : zRouteL.startsWith('/purchases')
+                                ? 'Purchases'
+                                : zRouteL.startsWith('/stock-transfers')
+                                  ? 'Stock transfers'
+                                  : zRouteL.startsWith('/stocks')
+                                    ? 'Stock'
+                                    : zRouteL.startsWith('/categories')
+                                      ? 'Categories'
+                                      : 'Dashboard';
   return (
     <div className="erp-layout">
       <header className="erp-topbar">
@@ -54,14 +60,32 @@ export default function AppLayout({
           aria-expanded={bSidebarOpenL}
           onClick={() => setSidebarOpen(!bSidebarOpenL)}
         >
-          ☰
+          â˜°
         </button>
         <span>{zTitleL}</span>
         <div className="topbar-account">
-          <span className="account-avatar" title={zUserP}>
-            {zUserP.charAt(0).toUpperCase()}
+          <a
+            className="topbar-settings"
+            href="#/settings"
+            aria-current={
+              zRouteL === '/settings' || zRouteL === '/print-settings' ? 'page' : undefined
+            }
+          >
+            Settings
+          </a>
+          <span className="account-avatar" title={oProfileP.name || zUserP}>
+            {oProfileP.photo ? (
+              <img src={oProfileP.photo} alt={`${oProfileP.name || zUserP} profile`} />
+            ) : (
+              (oProfileP.name || zUserP).charAt(0).toUpperCase()
+            )}
           </span>
-          <button onClick={onSignOutP}>Sign out</button>
+          <span className="account-name" title={zUserP}>
+            {oProfileP.name || zUserP}
+          </span>
+          <button type="button" className="signout-button" onClick={onSignOutP}>
+            Sign out
+          </button>{' '}
         </div>
       </header>
       <aside className={`erp-sidebar ${bSidebarOpenL ? 'sidebar-open' : ''}`}>
@@ -181,6 +205,7 @@ export default function AppLayout({
                   'purchases',
                   'inventory',
                   'locations',
+                  'settings',
                 ].includes(oModuleP.key)
             )
             .map((oModuleP) => (
