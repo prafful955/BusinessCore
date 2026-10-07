@@ -5,7 +5,9 @@ import com.example.user.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
-@Service @Transactional public class RoleService  {
+@Service @Transactional
+public class RoleService
+{
     public static final Set<String> MODULES=Set.of("dashboards","locations","employees","roles","products","customers","quotations","orders","sales","purchases","inventory","manufacturing","deliveries","finance","appointments","tasks","system","settings");
     private final RoleRepository roles;
     private final EmployeeRepository employees;
@@ -19,7 +21,8 @@ import java.util.*;
     public List<RoleResponse> all() {
         return roles.findAll().stream().map(RoleResponse::from).toList();
     }
-    public RoleResponse save(Long id,RoleRequest input) {
+    public RoleResponse save(Long id,RoleRequest input)
+    {
         if(input.name()==null||input.name().isBlank()||input.name().trim().length()>100)throw new ApiException(400,"Role name must contain 1 to 100 characters");
         Role role=id==null?new Role():get(id);
         String name=input.name().trim();
