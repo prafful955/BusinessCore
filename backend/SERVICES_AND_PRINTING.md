@@ -4,6 +4,7 @@
 
 | Service | Port | Owns |
 | --- | --- | --- |
+| config-server | 8888 | Shared MySQL and Eureka configuration |
 | eureka-server | 8761 | Service registry and discovery dashboard |
 | api-gateway | 8080 | Frontend routing and CORS |
 | user-service | 8081 | Users, employees, roles, authentication, customers, quotations, regular invoices, sales orders, status lookups, dashboard |
@@ -28,7 +29,7 @@ cross-service workflow coordination.
 Requirements: Java 21, Maven 3.9+, Node.js and Docker Desktop.
 
 1. From the project root, run docker compose up -d.
-2. Start eureka-server (EurekaServerApplication), then start user-service and wait for it to finish creating/updating tables.
+2. Start eureka-server (EurekaServerApplication), then config-server (ConfigServerApplication), then start user-service and wait for it to finish creating/updating tables.
 3. Start product-service and inventory-service.
 4. Start sales-invoice-service, order-service and api-gateway.
 5. Start the frontend with npm.cmd run dev from frontend on Windows, or npm run dev on other shells.
@@ -38,7 +39,7 @@ Run each backend application from its own folder in a separate terminal:
     cd backend/user-service
     mvn spring-boot:run
 
-Start eureka-server from backend/eureka-server with the same command before the application services.
+Start eureka-server from backend/eureka-server with the same command before ConfigServerApplication and the application services.
 Repeat for product-service, inventory-service, sales-invoice-service, order-service and api-gateway.
 Sales-invoice-service uses ddl-auto:validate because user-service owns the shared customer/status/document schema.
 Start user-service again after this update to add the new billing-address snapshot column.
@@ -51,7 +52,7 @@ USER_SERVICE_URL (default http://localhost:8081) and apply the existing module p
 Authentication still defaults off for compatibility with the demo frontend.
 Invoice printing does not issue invoices or consume stock.
 
-From backend, run mvn test to test all seven modules, or run mvn test inside an individual service directory.
+From backend, run mvn test to test all eight modules, or run mvn test inside an individual service directory.
 
 ## Set up printing
 
@@ -88,4 +89,8 @@ Service tests: backend/inventory-service/src/test and backend/sales-invoice-serv
 
 ## Eureka discovery
 
-Reload backend/pom.xml in IntelliJ to import eureka-server. Run EurekaServerApplication first, then the six application services. Open http://localhost:8761 and wait for API-GATEWAY, USER-SERVICE, PRODUCT-SERVICE, ORDER-SERVICE, INVENTORY-SERVICE and SALES-INVOICE-SERVICE to appear as UP. The standalone registry does not register itself. Gateway routes use lb:// service names. EUREKA_SERVER_URL overrides the clients' default http://localhost:8761/eureka/ endpoint. Existing test configurations disable Eureka so database tests do not need a registry.
+Reload backend/pom.xml in IntelliJ to import eureka-server and config-server. Run EurekaServerApplication first, then ConfigServerApplication, then the six application services. Open http://localhost:8761 and wait for API-GATEWAY, USER-SERVICE, PRODUCT-SERVICE, ORDER-SERVICE, INVENTORY-SERVICE, SALES-INVOICE-SERVICE and CONFIG-SERVER to appear as UP. The standalone registry does not register itself. Gateway routes use lb:// service names. EUREKA_SERVER_URL overrides the clients' default http://localhost:8761/eureka/ endpoint. Existing test configurations disable Eureka so database tests do not need a registry.
+
+## Shared MySQL configuration
+
+All five database services load shared connection settings from config-server/src/main/resources/config-repo/database.yml. The gateway loads only shared discovery settings. Config Server must be running on port 8888 before these clients start. Change the shared file and restart Config Server and its clients to apply updates. DB_URL, DB_USERNAME and DB_PASSWORD can override settings in each database service. CONFIG_SERVER_URL overrides the client endpoint; CONFIG_REPO_LOCATION on Config Server supports an external file directory. Config Server does not execute SQL; each database service keeps its own JDBC pool and schema policy. See the root README for endpoints and startup commands.

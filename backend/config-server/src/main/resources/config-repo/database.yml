@@ -1,0 +1,8 @@
+# Shared by user, product, order, inventory and sales-invoice services.
+# The gateway does not request this configuration.
+# DB_* environment overrides are evaluated in each client service.
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/appdb?createDatabaseIfNotExist=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}

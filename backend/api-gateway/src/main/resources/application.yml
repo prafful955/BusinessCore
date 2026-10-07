@@ -1,6 +1,8 @@
 server:
   port: 8080
 spring:
+  config:
+    import: "configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
   application:
     name: api-gateway
   cloud:
@@ -51,12 +53,3 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/api/sales-orders,/api/sales-orders/**
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
-  instance:
-    prefer-ip-address: true
