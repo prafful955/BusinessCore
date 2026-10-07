@@ -17,7 +17,7 @@ Inventory and sales invoices are separate Spring Boot applications with their ow
 repositories, application.yml and tests. Their controllers have been removed from user-service.
 The gateway keeps existing public API URLs, so frontend API addresses do not change.
 
-This split preserves the current shared MySQL appdb schema and existing rows. It is a service ownership split,
+The connection defaults now select one database per service (see config-repo/README.md). Existing rows are not migrated automatically. The original implementation was a service ownership split,
 not database isolation. Inventory writes its organization/stock/purchasing tables; products remain a read projection
 of the product table. Sales-invoice-service owns business_documents rows with kind=sales-invoices and reads
 customer/status data as immutable projections. Other commercial documents remain owned by user-service.
@@ -95,7 +95,9 @@ Reload backend/pom.xml in IntelliJ to import eureka-server and config-server. Ru
 
 Config Server reads config-repo on BusinessCore's main branch. Each SQL service has its
 own file named after spring.application.name; employees use user-service.yml and orders
-use order-service.yml. These files contain the supplied house_rent_mng_sys connection
+use order-service.yml. These files select databases named after each service
 and environment-based MySQL credentials. The gateway receives shared discovery settings only.
 Start Config Server before the clients. Push configuration changes to main and restart
 affected clients. See config-repo/README.md for service mappings and Git/DB overrides.
+
+Separate database URLs require schema/data migration and reference-data synchronization. Inventory still reads a products projection and sales invoices read customer/status projections. sales-invoice-service keeps schema validation; provision its tables before starting it against a new empty database.

@@ -47,7 +47,7 @@ class ConfigServerApplicationTest {
         for (String service : List.of("user-service", "product-service", "order-service",
                 "inventory-service", "sales-invoice-service")) {
             Map<String, Object> properties = propertiesFor(service);
-            assertEquals("${DB_URL:jdbc:mysql://localhost:3306/house_rent_mng_sys?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}",
+            assertEquals("${DB_URL:jdbc:mysql://localhost:3306/" + service.replace('-', '_') + "_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}",
                     properties.get("spring.datasource.url"));
             assertEquals("${DB_USERNAME:root}", properties.get("spring.datasource.username"));
             assertEquals("${DB_PASSWORD}", properties.get("spring.datasource.password"));

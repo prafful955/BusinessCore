@@ -10,7 +10,7 @@ Each service fetches its own file using spring.application.name:
 - api-gateway.yml: no database connection
 application.yml contains discovery settings shared by all application services.
 
-The five SQL files use house_rent_mng_sys, root as the default username and a required DB_PASSWORD environment variable.
+Each SQL file uses a database named after its service (hyphens become underscores, followed by _db), root as the default username and a required DB_PASSWORD environment variable.
 DB_URL, DB_USERNAME and DB_PASSWORD environment overrides are evaluated by each client.
 Edit the relevant file, commit and push to main, then restart the affected service.
 Config Server refreshes its Git copy on configuration requests.
@@ -28,3 +28,21 @@ Set DB_PASSWORD in each database service's IntelliJ Run Configuration environmen
 The ignored root .env file supplies Docker Compose only; Java does not load it automatically.
 Copy .env.example to .env on a new checkout and set your own password.
 Actual passwords are excluded from Git.
+Database mapping:
+| Service | Database |
+|---|---|
+| user-service (employees) | user_service_db |
+| product-service | product_service_db |
+| order-service | order_service_db |
+| inventory-service | inventory_service_db |
+| sales-invoice-service | sales_invoice_service_db |
+
+New MySQL volumes create these databases using infrastructure/mysql/init/01-create-service-databases.sql.
+Existing MySQL volumes can run that script manually; JDBC URLs also allow database creation.
+Existing records are not migrated by a connection-string change.
+Remove any DB_URL override to use these per-service defaults.
+
+The application previously shared tables across services. Inventory's products projection and
+sales invoices' customer/status projections need migration and synchronization for isolated databases.
+sales-invoice-service retains ddl-auto:validate and requires its tables to be provisioned before startup.
+Creating databases alone does not create those validated tables or synchronize reference data.
