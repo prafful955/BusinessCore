@@ -21,7 +21,7 @@ import jakarta.servlet.http.*;
                 Employee e=auth.authenticate(q.getHeader("Authorization"));
                 q.setAttribute(com.example.audit.AuditContext.ACTOR_ATTRIBUTE,"employee:"+e.id);
                 String module=path.startsWith("/api/employees")?"employees":path.startsWith("/api/roles")?"roles":path.startsWith("/api/dashboard")?"dashboards":path.startsWith("/api/locations")?"locations":"system";
-                
+
 if(path.startsWith("/api/customers"))module="customers";
                 else if(path.startsWith("/api/quotations"))module="quotations";
                 else if(path.startsWith("/api/invoices")||path.startsWith("/api/sales-invoices"))module="sales";
@@ -36,7 +36,7 @@ if(path.startsWith("/api/customers"))module="customers";
                         default->"settings";
                     };
                 }
-                
+
 if(path.startsWith("/api/sales-orders"))module="orders";
                 else if(path.startsWith("/api/purchases")||path.startsWith("/api/purchase-orders"))module="purchases";
                 else if(path.startsWith("/api/stocks")||path.startsWith("/api/stock-transfers")||path.startsWith("/api/stock-products"))module="inventory";
