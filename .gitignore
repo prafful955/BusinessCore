@@ -1,0 +1,14 @@
+**/target/
+**/node_modules/
+**/.idea/
+**/.vscode/
+*.log
+.env
+
+# Local PowerShell cache
+/Microsoft/
+# Local environment overrides
+.env.*
+!.env.example
+*.tsbuildinfo
+**/dist/

@@ -1,0 +1,62 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+      routes:
+        - id: users
+          uri: lb://user-service
+          predicates: [Path=/api/users/**]
+        - id: products
+          uri: lb://product-service
+          predicates: [Path=/api/products/**]
+        - id: orders
+          uri: lb://order-service
+          predicates: [Path=/api/orders/**]
+
+        - id: employee-management
+          uri: lb://user-service
+          predicates:
+            - Path=/api/employees,/api/employees/**,/api/roles,/api/roles/**,/api/auth/**,/api/departments,/api/locations,/api/cash-registers,/api/email-accounts,/api/work-shifts,/api/holiday-schedules,/api/dashboard/**
+
+        - id: customers-and-documents
+          uri: lb://user-service
+          predicates:
+            - Path=/api/customers,/api/customers/**,/api/quotations,/api/quotations/**,/api/invoices,/api/invoices/**,/api/statuses,/api/lookup-values,/api/lookup-values/**
+
+        - id: categories
+          uri: lb://product-service
+          predicates:
+            - Path=/api/categories,/api/categories/**
+
+        - id: organizations-and-inventory
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/warehouses,/api/companies,/api/companies/**,/api/business-locations,/api/business-locations/**,/api/warehouses/**,/api/stocks,/api/stocks/**,/api/stock-products,/api/purchase-orders,/api/purchase-orders/**,/api/purchases,/api/purchases/**,/api/stock-transfers,/api/stock-transfers/**
+
+        - id: sales-invoices
+          uri: lb://sales-invoice-service
+          predicates:
+            - Path=/api/sales-invoices,/api/sales-invoices/**
+        - id: customer-orders
+          uri: lb://user-service
+          predicates:
+            - Path=/api/sales-orders,/api/sales-orders/**
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true

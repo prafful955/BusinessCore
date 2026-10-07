@@ -1,0 +1,249 @@
+.erp-layout {
+  min-height: 100vh;
+  background: #c9c9c9;
+}
+.erp-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: #348cd0;
+  color: white;
+  z-index: 20;
+  padding: 0 18px;
+  display: flex;
+  justify-content: center;
+  font-size: 14px;
+}
+.topbar-account {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.topbar-account button,
+.sidebar-toggle {
+  background: transparent;
+  color: white;
+}
+.account-avatar {
+  width: 30px;
+  height: 30px;
+  background: #7b168f;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.sidebar-toggle {
+  position: absolute;
+  left: 10px;
+  display: none;
+}
+.erp-sidebar {
+  position: fixed;
+  left: 0;
+  top: 48px;
+  bottom: 0;
+  width: 210px;
+  background: #254153;
+  padding: 12px 0;
+  overflow: auto;
+  z-index: 19;
+  display: flex;
+  flex-direction: column;
+}
+.erp-brand {
+  background: white;
+  color: #254153;
+  text-decoration: none;
+  font-size: 23px;
+  align-self: flex-start;
+  margin: 0 12px 18px;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+.erp-sidebar nav {
+  margin: 0;
+  gap: 2px;
+}
+.erp-sidebar nav > a,
+.erp-sidebar summary,
+.nav-unavailable {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.erp-sidebar details > a {
+  display: block;
+  margin: 2px 10px 2px 20px;
+  font-size: 12px;
+  text-decoration: none;
+}
+.erp-sidebar summary::after {
+  content: '⌄';
+}
+.erp-sidebar summary {
+  list-style: none;
+}
+.erp-sidebar .active {
+  background: #365a70;
+}
+.erp-sidebar nav a:hover,
+.erp-sidebar summary:hover {
+  background: #365a70;
+}
+.erp-sidebar .nav-unavailable {
+  cursor: default;
+  color: #c5d4de;
+}
+.nav-unavailable small {
+  font-size: 9px;
+  color: #b6c8d3;
+}
+.sidebar-account {
+  margin-top: auto;
+  padding: 24px 16px 8px;
+  color: #c5d4de;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.erp-content {
+  margin-left: 210px;
+  padding: 66px 12px 24px;
+  max-width: none;
+  width: auto;
+}
+.dashboard-tabs {
+  display: flex;
+  overflow: auto;
+  background: #254153;
+  margin: -18px -12px 10px;
+  padding: 0 6px;
+  gap: 3px;
+}
+.dashboard-tabs button {
+  background: transparent;
+  border-radius: 0;
+  white-space: nowrap;
+  font-size: 12px;
+  padding: 13px 16px;
+}
+.dashboard-tabs .current-tab {
+  background: #365a70;
+  box-shadow: inset 0 -3px #57b4f4;
+}
+.dashboard-heading {
+  background: white;
+  border-radius: 4px;
+  padding: 14px 18px;
+  box-shadow: 0 2px 3px #0002;
+  position: relative;
+  justify-content: center;
+  margin-bottom: 10px;
+  min-height: 54px;
+}
+.dashboard-heading h1 {
+  font-size: 18px;
+  font-weight: 500;
+}
+.dashboard-heading button {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+}
+.dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.metric-card {
+  background: white;
+  border-radius: 4px;
+  padding: 14px 12px;
+  box-shadow: 0 2px 3px #0003;
+  min-height: 125px;
+}
+.metric-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.metric-heading h2 {
+  font-size: 12px;
+  color: #348cd0;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.metric-heading time {
+  font-size: 10px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.metric-card > p {
+  text-align: center;
+  font-size: 32px;
+  margin: 23px 0 4px;
+  color: #292929;
+}
+.dashboard-message {
+  background: white;
+  border-radius: 4px;
+  padding: 24px;
+}
+.erp-content > .control-card,
+.erp-content > .grid-card {
+  margin-top: 16px;
+}
+.login-page {
+  background: linear-gradient(135deg, #254153, #348cd0);
+}
+.login-card form > button {
+  background: #348cd0;
+}
+@media (max-width: 1200px) {
+  .dashboard-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .erp-sidebar {
+    display: flex;
+    transform: translateX(-100%);
+  }
+  .erp-sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+  .erp-content {
+    margin-left: 0;
+  }
+  .sidebar-toggle {
+    display: block;
+  }
+}
+@media (max-width: 600px) {
+  .dashboard-metrics {
+    grid-template-columns: 1fr;
+  }
+  .topbar-account {
+    gap: 4px;
+  }
+  .account-avatar {
+    display: none;
+  }
+  .dashboard-heading {
+    justify-content: flex-start;
+  }
+  .metric-card > p {
+    font-size: 28px;
+  }
+}
