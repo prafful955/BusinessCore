@@ -1,9 +1,6 @@
 server:
   port: 8083
 spring:
-  cloud:
-    config:
-      name: "${spring.application.name},database"
   config:
     import: "configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
   application:

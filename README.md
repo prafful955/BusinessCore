@@ -58,27 +58,18 @@ See [backend/SERVICES_AND_PRINTING.md](backend/SERVICES_AND_PRINTING.md) for ser
 
 ## Central configuration
 
-Config Server runs at http://localhost:8888 and registers with Eureka.
-Start it before the six application services; their Config Server import is required.
-Reload the Maven project in IntelliJ and run ConfigServerApplication after EurekaServerApplication.
+Config Server runs at http://localhost:8888 and reads the config-repo folder from
+https://github.com/prafful955/BusinessCore.git on main.
+Each database service has its own SQL connection file in config-repo, including
+user-service.yml for employees and order-service.yml for orders.
+See config-repo/README.md for the complete mapping and environment overrides.
+Edit, commit and push configuration updates, then restart the affected clients.
 
-Edit backend/config-server/src/main/resources/config-repo/database.yml to change the
-shared MySQL URL, username and password for user-service, product-service, order-service,
-inventory-service and sales-invoice-service. Each service still opens its own connection pool.
-The gateway receives shared discovery settings only. Service ports and JPA schema settings
-remain in each service's application.yml.
-
-DB_URL, DB_USERNAME and DB_PASSWORD environment overrides apply in each database service.
-CONFIG_SERVER_URL overrides the default http://localhost:8888 client endpoint.
-CONFIG_REPO_LOCATION on Config Server can point to an external file directory, for example
-file:///C:/BusinessCore-config/, containing application.yml and database.yml.
-For the packaged classpath repository, restart Config Server after edits, then restart
-clients to reload configuration. Existing database tests disable remote config and use H2.
-
-Check served database configuration at:
-http://localhost:8888/user-service,database/default
-The same application-name,database pattern works for the other four database services.
-Gateway configuration: http://localhost:8888/api-gateway/default
+Start EurekaServerApplication, ConfigServerApplication, UserApplication (wait for startup),
+then the other services. Each client requests configuration by spring.application.name.
+Example: http://localhost:8888/user-service/default.
+CONFIG_SERVER_URL overrides the client endpoint; CONFIG_GIT_URI overrides Config Server's
+Git repository. Config Server does not execute SQL: every database service has its own pool.
 
 ## Gateway resilience and monitoring
 

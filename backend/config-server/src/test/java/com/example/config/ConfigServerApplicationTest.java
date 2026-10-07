@@ -21,15 +21,36 @@ class ConfigServerApplicationTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper mapper;
 
+    @org.springframework.test.context.DynamicPropertySource
+    static void localGitRepository(org.springframework.test.context.DynamicPropertyRegistry properties) {
+        java.nio.file.Path repository = java.nio.file.Path.of("").toAbsolutePath();
+        while (repository != null && !java.nio.file.Files.exists(repository.resolve(".git"))) {
+            repository = repository.getParent();
+        }
+        if (repository == null) throw new IllegalStateException("Run tests from the Git checkout");
+        String uri;
+        try {
+            java.nio.file.Path isolated = java.nio.file.Files.createTempDirectory("businesscore-config-git-");
+            try (var git = org.eclipse.jgit.api.Git.cloneRepository()
+                    .setURI(repository.toUri().toString())
+                    .setDirectory(isolated.toFile()).call()) {
+                uri = isolated.toUri().toString();
+            }
+        } catch (Exception exception) {
+            throw new IllegalStateException("Cannot create isolated config Git repository", exception);
+        }
+        properties.add("spring.cloud.config.server.git.uri", () -> uri);
+    }
+
     @Test
-    void suppliesSharedDatabaseSettingsForEveryDatabaseService() throws Exception {
+    void suppliesServiceSpecificDatabaseSettingsFromGit() throws Exception {
         for (String service : List.of("user-service", "product-service", "order-service",
                 "inventory-service", "sales-invoice-service")) {
-            Map<String, Object> properties = propertiesFor(service + ",database");
-            assertEquals("${DB_URL:jdbc:mysql://localhost:3306/appdb?createDatabaseIfNotExist=true}",
+            Map<String, Object> properties = propertiesFor(service);
+            assertEquals("${DB_URL:jdbc:mysql://localhost:3306/house_rent_mng_sys?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}",
                     properties.get("spring.datasource.url"));
             assertEquals("${DB_USERNAME:root}", properties.get("spring.datasource.username"));
-            assertEquals("${DB_PASSWORD:root}", properties.get("spring.datasource.password"));
+            assertEquals("${DB_PASSWORD}", properties.get("spring.datasource.password"));
             assertEquals("${EUREKA_SERVER_URL:http://localhost:8761/eureka/}",
                     properties.get("eureka.client.service-url.defaultZone"));
             assertFalse(properties.containsKey("spring.jpa.hibernate.ddl-auto"),

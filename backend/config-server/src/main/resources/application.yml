@@ -3,13 +3,15 @@ server:
 spring:
   application:
     name: config-server
-  profiles:
-    active: native
   cloud:
     config:
       server:
-        native:
-          search-locations: ${CONFIG_REPO_LOCATION:classpath:/config-repo/}
+        git:
+          uri: ${CONFIG_GIT_URI:https://github.com/prafful955/BusinessCore.git}
+          default-label: main
+          search-paths: config-repo
+          clone-on-start: true
+          refresh-rate: 0
 eureka:
   client:
     register-with-eureka: true

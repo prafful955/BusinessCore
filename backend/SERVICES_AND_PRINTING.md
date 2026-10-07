@@ -91,6 +91,11 @@ Service tests: backend/inventory-service/src/test and backend/sales-invoice-serv
 
 Reload backend/pom.xml in IntelliJ to import eureka-server and config-server. Run EurekaServerApplication first, then ConfigServerApplication, then the six application services. Open http://localhost:8761 and wait for API-GATEWAY, USER-SERVICE, PRODUCT-SERVICE, ORDER-SERVICE, INVENTORY-SERVICE, SALES-INVOICE-SERVICE and CONFIG-SERVER to appear as UP. The standalone registry does not register itself. Gateway routes use lb:// service names. EUREKA_SERVER_URL overrides the clients' default http://localhost:8761/eureka/ endpoint. Existing test configurations disable Eureka so database tests do not need a registry.
 
-## Shared MySQL configuration
+## Service SQL configuration in Git
 
-All five database services load shared connection settings from config-server/src/main/resources/config-repo/database.yml. The gateway loads only shared discovery settings. Config Server must be running on port 8888 before these clients start. Change the shared file and restart Config Server and its clients to apply updates. DB_URL, DB_USERNAME and DB_PASSWORD can override settings in each database service. CONFIG_SERVER_URL overrides the client endpoint; CONFIG_REPO_LOCATION on Config Server supports an external file directory. Config Server does not execute SQL; each database service keeps its own JDBC pool and schema policy. See the root README for endpoints and startup commands.
+Config Server reads config-repo on BusinessCore's main branch. Each SQL service has its
+own file named after spring.application.name; employees use user-service.yml and orders
+use order-service.yml. These files contain the supplied house_rent_mng_sys connection
+and environment-based MySQL credentials. The gateway receives shared discovery settings only.
+Start Config Server before the clients. Push configuration changes to main and restart
+affected clients. See config-repo/README.md for service mappings and Git/DB overrides.

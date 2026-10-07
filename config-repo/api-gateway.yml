@@ -1,0 +1,1 @@
+# Gateway uses shared discovery settings from application.yml and has no SQL connection.
