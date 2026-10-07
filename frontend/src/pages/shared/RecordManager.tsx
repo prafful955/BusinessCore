@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { AppGrid, type GridColumn } from '../../components/grid/AppGrid';
 import { ConfirmDialog } from '../../components/dialog/Dialog';
 import { errorMessage, type CrudApi } from '../business/business.api';
@@ -84,7 +84,13 @@ export default function RecordManager<T extends { id: number; status: string }, 
   return (
     <>
       <header>
-        <h1>{title} manager</h1>
+        <div>
+          <h1>{title === 'Customer' ? 'Customers' : title + ' manager'}</h1>
+          <p>Manage your {title.toLowerCase()} records and information.</p>
+        </div>
+        <a className="button" href={'#' + route + '/new'}>
+          + New {title.toLowerCase()}
+        </a>
       </header>
       <section className="control-card">
         <div className="toolbar">
@@ -119,7 +125,12 @@ export default function RecordManager<T extends { id: number; status: string }, 
         <div className="filters">
           <label className="field">
             <span>Search</span>
-            <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input
+              type="search"
+              placeholder="Search by name, code, or details..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </label>
           <label className="field">
             <span>Status</span>

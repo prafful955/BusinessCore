@@ -1,4 +1,5 @@
-﻿import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+﻿import { UiIcon } from '../../layouts/AppLayout';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export type GridColumn<T> = { key: keyof T; label: string; render?: (row: T) => React.ReactNode };
@@ -37,6 +38,49 @@ export function AppGrid<T extends { id: number }>({
     trigger: HTMLButtonElement;
   } | null>(null);
   const oMenuRefL = useRef<HTMLDivElement>(null);
+  const [nPageL, setPage] = useState(1);
+  const [nPageSizeL, setPageSize] = useState(10);
+  const [zSortKeyL, setSortKey] = useState<keyof T>();
+  const [bDescendingL, setDescending] = useState(false);
+  const [aHiddenL, setHidden] = useState<string[]>([]);
+  const aColumnsL = columns.filter((oColumnP) => !aHiddenL.includes(String(oColumnP.key)));
+  const aSortedL = zSortKeyL
+    ? [...rows].sort(
+        (oFirstP, oSecondP) =>
+          String(oFirstP[zSortKeyL] ?? '').localeCompare(
+            String(oSecondP[zSortKeyL] ?? ''),
+            undefined,
+            { numeric: true, sensitivity: 'base' }
+          ) * (bDescendingL ? -1 : 1)
+      )
+    : rows;
+  const nPagesL = Math.max(1, Math.ceil(rows.length / nPageSizeL));
+  const nCurrentL = Math.min(nPageL, nPagesL);
+  const aPageRowsL = aSortedL.slice((nCurrentL - 1) * nPageSizeL, nCurrentL * nPageSizeL);
+  const zRowIdsL = rows.map((oRowP) => oRowP.id).join(',');
+  useEffect(() => {
+    setPage(1);
+    setMenu(null);
+  }, [zRowIdsL, nPageSizeL, zSortKeyL, bDescendingL]);
+  function exportCsv() {
+    function cell(oValueP: unknown) {
+      let zValueL = String(oValueP ?? '');
+      if (/^[=+@\-\t\r]/.test(zValueL)) zValueL = "'" + zValueL;
+      return '"' + zValueL.replace(/"/g, '""') + '"';
+    }
+    const zCsvL = [
+      aColumnsL.map((oColumnP) => cell(oColumnP.label)).join(','),
+      ...aSortedL.map((oRowP) => aColumnsL.map((oColumnP) => cell(oRowP[oColumnP.key])).join(',')),
+    ].join('\r\n');
+    const zUrlL = URL.createObjectURL(
+      new Blob(['\uFEFF' + zCsvL], { type: 'text/csv;charset=utf-8' })
+    );
+    const oLinkL = document.createElement('a');
+    oLinkL.href = zUrlL;
+    oLinkL.download = gridId + '.csv';
+    oLinkL.click();
+    setTimeout(() => URL.revokeObjectURL(zUrlL), 1000);
+  }
   const oRowL = rows.find((oRowP) => oRowP.id === oMenuL?.id);
   function closeMenu(bRestoreP = false) {
     if (bRestoreP) oMenuL?.trigger.focus();
@@ -80,20 +124,70 @@ export function AppGrid<T extends { id: number }>({
         <span>
           {rows.length} {rowLabel}
         </span>
+        <div className="grid-tools">
+          <button type="button" className="secondary" disabled={!rows.length} onClick={exportCsv}>
+            Export CSV
+          </button>
+          <details className="column-picker">
+            <summary>Columns</summary>
+            <div className="column-picker-panel">
+              {columns.map((oColumnP) => (
+                <label key={String(oColumnP.key)}>
+                  <input
+                    type="checkbox"
+                    checked={!aHiddenL.includes(String(oColumnP.key))}
+                    disabled={aColumnsL.length === 1 && !aHiddenL.includes(String(oColumnP.key))}
+                    onChange={(oEventP) =>
+                      setHidden(
+                        oEventP.target.checked
+                          ? aHiddenL.filter((zKeyP) => zKeyP !== String(oColumnP.key))
+                          : [...aHiddenL, String(oColumnP.key)]
+                      )
+                    }
+                  />
+                  {oColumnP.label}
+                </label>
+              ))}
+            </div>
+          </details>
+        </div>
       </div>
       <div className="table-wrap">
         <table>
           <thead>
             <tr>
               <th>Select</th>
-              {columns.map((oColumnP) => (
-                <th key={String(oColumnP.key)}>{oColumnP.label}</th>
+              {aColumnsL.map((oColumnP) => (
+                <th
+                  key={String(oColumnP.key)}
+                  aria-sort={
+                    zSortKeyL === oColumnP.key
+                      ? bDescendingL
+                        ? 'descending'
+                        : 'ascending'
+                      : 'none'
+                  }
+                >
+                  <button
+                    type="button"
+                    className="sort-column"
+                    onClick={() => {
+                      setSortKey(oColumnP.key);
+                      setDescending(zSortKeyL === oColumnP.key ? !bDescendingL : false);
+                    }}
+                  >
+                    {oColumnP.label}
+                    <span aria-hidden="true">
+                      {zSortKeyL === oColumnP.key ? (bDescendingL ? '↓' : '↑') : '↕'}
+                    </span>
+                  </button>
+                </th>
               ))}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((oRowP) => (
+            {aPageRowsL.map((oRowP) => (
               <tr
                 key={oRowP.id}
                 className={selectedId === oRowP.id ? 'selected' : ''}
@@ -121,50 +215,170 @@ export function AppGrid<T extends { id: number }>({
                     onChange={() => onSelect(oRowP)}
                   />
                 </td>
-                {columns.map((oColumnP) => (
+                {aColumnsL.map((oColumnP) => (
                   <td key={String(oColumnP.key)}>
-                    {oColumnP.render ? oColumnP.render(oRowP) : String(oRowP[oColumnP.key])}
+                    {oColumnP.render ? (
+                      oColumnP.render(oRowP)
+                    ) : String(oColumnP.key) === 'status' ? (
+                      <span
+                        className={`record-status ${String(oRowP[oColumnP.key]).toLowerCase().replace(/\s+/g, '-')}`}
+                      >
+                        {String(oRowP[oColumnP.key])}
+                      </span>
+                    ) : (
+                      String(oRowP[oColumnP.key] ?? '')
+                    )}
                   </td>
                 ))}
                 <td>
-                  <button
-                    type="button"
-                    className="secondary"
-                    data-row-actions
-                    disabled={actionsDisabled}
-                    aria-label={`Actions for ${rowLabel} ${oRowP.id}`}
-                    aria-haspopup="menu"
-                    aria-expanded={oMenuL?.id === oRowP.id}
-                    aria-controls={oMenuL?.id === oRowP.id ? `${gridId}-menu` : undefined}
-                    onClick={(oEventP) => {
-                      if (oMenuL?.id === oRowP.id) {
-                        closeMenu(true);
-                        return;
-                      }
-                      const oBoundsL = oEventP.currentTarget.getBoundingClientRect();
-                      onSelect(oRowP);
-                      setMenu({
-                        id: oRowP.id,
-                        x: oBoundsL.left,
-                        y: oBoundsL.bottom + 4,
-                        trigger: oEventP.currentTarget,
-                      });
-                    }}
-                  >
-                    Actions &#8942;
-                  </button>
+                  <div className="row-actions">
+                    <button
+                      type="button"
+                      className="row-icon"
+                      disabled={actionsDisabled}
+                      aria-label={`Update ${rowLabel} ${oRowP.id}`}
+                      title="Update"
+                      onClick={() => {
+                        onSelect(oRowP);
+                        onUpdate(oRowP);
+                      }}
+                    >
+                      <UiIcon name="edit" />
+                    </button>
+                    <button
+                      type="button"
+                      className="row-icon view"
+                      disabled={actionsDisabled}
+                      aria-label={`View ${rowLabel} ${oRowP.id}`}
+                      title="View"
+                      onClick={() => {
+                        onSelect(oRowP);
+                        onView(oRowP);
+                      }}
+                    >
+                      <UiIcon name="view" />
+                    </button>
+                    {onDelete && (
+                      <button
+                        type="button"
+                        className="row-icon danger"
+                        disabled={actionsDisabled}
+                        aria-label={`Delete ${rowLabel} ${oRowP.id}`}
+                        title="Delete"
+                        onClick={() => {
+                          onSelect(oRowP);
+                          onDelete(oRowP);
+                        }}
+                      >
+                        <UiIcon name="delete" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="secondary"
+                      data-row-actions
+                      disabled={actionsDisabled}
+                      aria-label={`Actions for ${rowLabel} ${oRowP.id}`}
+                      aria-haspopup="menu"
+                      aria-expanded={oMenuL?.id === oRowP.id}
+                      aria-controls={oMenuL?.id === oRowP.id ? `${gridId}-menu` : undefined}
+                      onClick={(oEventP) => {
+                        if (oMenuL?.id === oRowP.id) {
+                          closeMenu(true);
+                          return;
+                        }
+                        const oBoundsL = oEventP.currentTarget.getBoundingClientRect();
+                        onSelect(oRowP);
+                        setMenu({
+                          id: oRowP.id,
+                          x: oBoundsL.left,
+                          y: oBoundsL.bottom + 4,
+                          trigger: oEventP.currentTarget,
+                        });
+                      }}
+                    >
+                      &#8942;
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
             {!rows.length && (
               <tr>
-                <td colSpan={columns.length + 2} className="empty">
+                <td colSpan={aColumnsL.length + 2} className="empty">
                   {emptyMessage || `No ${rowLabel} match your filters.`}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
+      <div className="grid-pagination">
+        <span>
+          Showing {rows.length ? (nCurrentL - 1) * nPageSizeL + 1 : 0} to{' '}
+          {Math.min(nCurrentL * nPageSizeL, rows.length)} of {rows.length} entries
+        </span>
+        <div className="pagination-controls">
+          <label>
+            Rows per page{' '}
+            <select
+              aria-label="Rows per page"
+              value={nPageSizeL}
+              onChange={(oEventP) => setPageSize(Number(oEventP.target.value))}
+            >
+              {[10, 25, 50].map((nSizeP) => (
+                <option key={nSizeP}>{nSizeP}</option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            aria-label="First page"
+            disabled={nCurrentL === 1}
+            onClick={() => setPage(1)}
+          >
+            &laquo;
+          </button>
+          <button
+            type="button"
+            aria-label="Previous page"
+            disabled={nCurrentL === 1}
+            onClick={() => setPage(nCurrentL - 1)}
+          >
+            &lsaquo;
+          </button>
+          {Array.from(
+            { length: Math.min(5, nPagesL) },
+            (_, nIndexP) => Math.min(Math.max(1, nCurrentL - 2), Math.max(1, nPagesL - 4)) + nIndexP
+          ).map((nValueP) => (
+            <button
+              type="button"
+              key={nValueP}
+              className={nCurrentL === nValueP ? 'current-page' : ''}
+              aria-current={nCurrentL === nValueP ? 'page' : undefined}
+              aria-label={`Page ${nValueP}`}
+              onClick={() => setPage(nValueP)}
+            >
+              {nValueP}
+            </button>
+          ))}
+          <button
+            type="button"
+            aria-label="Next page"
+            disabled={nCurrentL === nPagesL}
+            onClick={() => setPage(nCurrentL + 1)}
+          >
+            &rsaquo;
+          </button>
+          <button
+            type="button"
+            aria-label="Last page"
+            disabled={nCurrentL === nPagesL}
+            onClick={() => setPage(nPagesL)}
+          >
+            &raquo;
+          </button>
+        </div>
       </div>
       {oMenuL &&
         oRowL &&
