@@ -1,7 +1,7 @@
 package com.example.order.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-@Entity @Table(name="orders") public class Order  {
+@Entity @Table(name="tbl_dyn_orders") public class Order extends com.example.audit.AuditedEntity {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
     private Long userId;
     private Long productId;

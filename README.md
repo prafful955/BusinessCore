@@ -95,3 +95,9 @@ Monitoring endpoints on the gateway:
 These development monitoring endpoints and discovery routes have no gateway authentication;
 restrict access before public deployment. Configuration and Eureka remain supplied by Config Server.
 Run gateway checks with mvn -pl api-gateway test from backend.
+
+## Table naming and audit history
+
+All application tables use tbl_dyn_. The five database services share common-audit for
+creator/modifier metadata and API action history in tbl_dyn_audit_events.
+See backend/AUDITING.md for identity handling, tests, migration scripts and running the shared module.

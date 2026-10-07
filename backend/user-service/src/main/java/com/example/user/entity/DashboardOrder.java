@@ -4,7 +4,7 @@ import org.hibernate.annotations.Immutable;
 import java.math.BigDecimal;
 import java.time.Instant;
 /** Read-only projection of the existing shared order table. */
-@Entity @Immutable @Table(name="orders")
+@Entity @Immutable @Table(name="tbl_dyn_orders")
 public class DashboardOrder  {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;
     public Long userId;

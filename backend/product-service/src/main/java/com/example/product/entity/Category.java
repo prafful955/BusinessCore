@@ -1,8 +1,8 @@
 package com.example.product.entity;
 import jakarta.persistence.*;
 import java.time.Instant;
-@Entity @Table(name="product_categories")
-public class Category {
+@Entity @Table(name="tbl_dyn_product_categories")
+public class Category extends com.example.audit.AuditedEntity {
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;
  @Version @Column(nullable=false) public Long version;
  @Column(nullable=false,unique=true,length=100) public String name;

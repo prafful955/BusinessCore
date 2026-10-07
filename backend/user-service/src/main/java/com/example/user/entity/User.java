@@ -1,6 +1,6 @@
 package com.example.user.entity;
 import jakarta.persistence.*;
-@Entity @Table(name="users") public class User  {
+@Entity @Table(name="tbl_dyn_users") public class User extends com.example.audit.AuditedEntity {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
     private String name;
     @Column(unique=true) private String email;

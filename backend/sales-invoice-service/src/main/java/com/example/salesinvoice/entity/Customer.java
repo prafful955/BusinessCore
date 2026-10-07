@@ -1,7 +1,7 @@
 package com.example.salesinvoice.entity;
 import jakarta.persistence.*;
 @org.hibernate.annotations.Immutable
-@Entity @Table(name="customers")
+@Entity @Table(name="tbl_dyn_customers")
 public class Customer {
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;
  @Column(nullable=false,unique=true) public String code;

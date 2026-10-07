@@ -1,6 +1,6 @@
 package com.example.user.entity;
 import jakarta.persistence.*;
-@Entity @Table(name="dashboard_entries") public class DashboardEntry  {
+@Entity @Table(name="tbl_dyn_dashboard_entries") public class DashboardEntry extends com.example.audit.AuditedEntity {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;
     @Column(nullable=false) public String category;
     @Column(nullable=false) public String metricKey;

@@ -1,7 +1,7 @@
 package com.example.inventory.entity;
 import jakarta.persistence.*;
-@Entity @Table(name="organization_units",uniqueConstraints=@UniqueConstraint(columnNames={"kind","code"}))
-public class OrganizationUnit {
+@Entity @Table(name="tbl_dyn_organization_units",uniqueConstraints=@UniqueConstraint(columnNames={"kind","code"}))
+public class OrganizationUnit extends com.example.audit.AuditedEntity {
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;
  @Version public Long version;
  @Column(nullable=false) public String kind;

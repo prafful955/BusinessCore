@@ -30,6 +30,7 @@ public class AccessConfig implements WebMvcConfigurer {
      throw new ApiException(503,"Authentication service is unavailable");
     }catch(RestClientException e){throw new ApiException(503,"Authentication service is unavailable");}
     if(user==null||user.permissions()==null)throw new ApiException(401,"Invalid session");
+    request.setAttribute(com.example.audit.AuditContext.ACTOR_ATTRIBUTE,"employee:"+user.id());
     String path=request.getRequestURI();
     String module="sales";
     String action=switch(request.getMethod()){case "POST"->"create";case "PUT","PATCH"->"update";case "DELETE"->"delete";default->"view";};

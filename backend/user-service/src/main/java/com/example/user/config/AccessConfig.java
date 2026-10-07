@@ -19,6 +19,7 @@ import jakarta.servlet.http.*;
                 String path=q.getRequestURI();
                 if(!enabled||"OPTIONS".equals(q.getMethod())||path.startsWith("/api/auth/"))return true;
                 Employee e=auth.authenticate(q.getHeader("Authorization"));
+                q.setAttribute(com.example.audit.AuditContext.ACTOR_ATTRIBUTE,"employee:"+e.id);
                 String module=path.startsWith("/api/employees")?"employees":path.startsWith("/api/roles")?"roles":path.startsWith("/api/dashboard")?"dashboards":path.startsWith("/api/locations")?"locations":"system";
                 
 if(path.startsWith("/api/customers"))module="customers";

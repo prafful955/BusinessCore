@@ -1,8 +1,8 @@
 package com.example.user.entity;
 import jakarta.persistence.*;
 import java.util.*;
-@Entity @Table(name="employee_roles") public class Role  {
+@Entity @Table(name="tbl_dyn_employee_roles") public class Role extends com.example.audit.AuditedEntity {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;
     @Column(unique=true,nullable=false,length=100) public String name;
-    @ElementCollection(fetch=FetchType.EAGER) @CollectionTable(name="role_permissions",joinColumns=@JoinColumn(name="role_id")) @Column(name="permission") public Set<String> permissions=new LinkedHashSet<>();
+    @ElementCollection(fetch=FetchType.EAGER) @CollectionTable(name="tbl_dyn_role_permissions",joinColumns=@JoinColumn(name="role_id")) @Column(name="permission") public Set<String> permissions=new LinkedHashSet<>();
 }

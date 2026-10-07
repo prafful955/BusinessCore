@@ -2,7 +2,7 @@ package com.example.inventory.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
-@Entity @Table(name="stock_movements")
+@Entity @Table(name="tbl_dyn_stock_movements")
 public class StockMovement{
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;
  @ManyToOne(optional=false) public StockBalance balance;

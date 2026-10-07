@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 import java.util.*;
 import java.time.LocalDate;
 import java.math.BigDecimal;
-@Entity @Table(name="inventory_documents",uniqueConstraints=@UniqueConstraint(columnNames={"kind","number"}))
+@Entity @Table(name="tbl_dyn_inventory_documents",uniqueConstraints=@UniqueConstraint(columnNames={"kind","number"}))
 public class InventoryDocument{
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;
  @Version public Long version;
@@ -17,7 +17,7 @@ public class InventoryDocument{
  @ManyToOne(optional=false) public OrganizationUnit warehouse;
  @ManyToOne public OrganizationUnit destination;
  @ManyToOne public InventoryDocument purchaseOrder;
- @ElementCollection @CollectionTable(name="inventory_document_lines",joinColumns=@JoinColumn(name="document_id"))
+ @ElementCollection @CollectionTable(name="tbl_dyn_inventory_document_lines",joinColumns=@JoinColumn(name="document_id"))
  @OrderColumn(name="line_index") public List<InventoryLine> lines=new ArrayList<>();
  @Column(precision=19,scale=2) public BigDecimal total;
 }

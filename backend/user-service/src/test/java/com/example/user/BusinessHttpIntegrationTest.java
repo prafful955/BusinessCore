@@ -28,20 +28,20 @@ class BusinessHttpIntegrationTest {
   employees.save(null,r);
   return "Bearer "+auth.login(r.email,r.password).get("accessToken");
  }
- private long status(String scope,String name){
+ private long statusId(String scope,String name){
   return statuses.all(scope).stream().filter(s->s.name.equals(name)).findFirst().orElseThrow().id;
  }
  @Test void customerAndDocumentHttpContract() throws Exception {
   String h=token(List.of("customers.view","customers.create","customers.delete",
    "quotations.view","quotations.create","quotations.delete","sales.view","sales.create","sales.delete"));
   CustomerRequest customer=new CustomerRequest("C001","Customer","Billing name","","customer@example.com","",
-   "","","","","","","",status("customers","Active"));
+   "","","","","","","",statusId("customers","Active"));
   var created=mvc.perform(post("/api/customers").header("Authorization",h).contentType("application/json")
    .content(mapper.writeValueAsString(customer))).andExpect(status().isCreated()).andReturn();
   long id=mapper.readTree(created.getResponse().getContentAsString()).get("id").asLong();
   mvc.perform(get("/api/customers").header("Authorization",h)).andExpect(status().isOk()).andExpect(jsonPath("$").isArray());
   for(String kind:List.of("quotations","invoices")){
-   var input=new DocumentRequest("DOC001",id,status(kind,"Draft"),"2026-10-07","2026-10-20","",
+   var input=new DocumentRequest("DOC001",id,statusId(kind,"Draft"),"2026-10-07","2026-10-20","",
     new BigDecimal("5"),List.of(new DocumentRequest.LineInput("Item",new BigDecimal("2.5"),new BigDecimal("10.12"))));
    var result=mvc.perform(post("/api/"+kind).header("Authorization",h).contentType("application/json")
     .content(mapper.writeValueAsString(input))).andExpect(status().isCreated())

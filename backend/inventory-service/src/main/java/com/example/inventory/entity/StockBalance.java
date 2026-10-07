@@ -1,7 +1,7 @@
 package com.example.inventory.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-@Entity @Table(name="stock_balances",uniqueConstraints=@UniqueConstraint(columnNames={"product_id","warehouse_id"}))
+@Entity @Table(name="tbl_dyn_stock_balances",uniqueConstraints=@UniqueConstraint(columnNames={"product_id","warehouse_id"}))
 public class StockBalance{
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) public Long id;
  @Version public Long version;
