@@ -79,3 +79,28 @@ Check served database configuration at:
 http://localhost:8888/user-service,database/default
 The same application-name,database pattern works for the other four database services.
 Gateway configuration: http://localhost:8888/api-gateway/default
+
+## Gateway resilience and monitoring
+
+The reactive gateway uses a 2-second connection timeout and 3-second response timeout.
+Employee routes (/api/employees and /api/employees/**) still target user-service.
+Employees and departments are currently part of user-service, not separate applications.
+The employee circuit breaker counts upstream 500/502/503/504 responses and connection failures;
+after at least 5 calls, a 50% failure rate opens the circuit for 10 seconds, followed by 2 trial calls.
+The fallback returns HTTP 503 with code EMPLOYEE_SERVICE_UNAVAILABLE for every HTTP method.
+Authentication and validation errors pass through normally. The circuit time limiter is 4 seconds
+so the 3-second HTTP response timeout can take effect first.
+
+Discovery locator routes are enabled with lowercase service IDs, alongside the existing /api routes.
+This also exposes discovered services under /service-id/** with the service prefix stripped.
+
+Monitoring endpoints on the gateway:
+- /actuator/health
+- /actuator/gateway/routes
+- /actuator/metrics
+- /actuator/prometheus
+- /actuator/info, /actuator/env, /actuator/beans
+
+These development monitoring endpoints and discovery routes have no gateway authentication;
+restrict access before public deployment. Configuration and Eureka remain supplied by Config Server.
+Run gateway checks with mvn -pl api-gateway test from backend.
