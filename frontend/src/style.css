@@ -39,3 +39,7 @@
   .print-document tr, .print-totals, .print-billing { break-inside: avoid; }
   .print-document a { color: black; text-decoration: none; }
 }
+.row-context-menu{position:fixed;z-index:1000;min-width:160px;display:grid;gap:2px;padding:6px;background:#fff;border:1px solid #d5dbe4;border-radius:8px;box-shadow:0 8px 24px #0003}
+.row-context-menu button{background:transparent;color:#182230;border:0;text-align:left;width:100%;padding:9px 12px;border-radius:4px}
+.row-context-menu button.danger{color:#b42318;background:transparent}
+.row-context-menu button:hover,.row-context-menu button:focus-visible{background:#edf2f7;outline:2px solid #98b9e8;outline-offset:-2px}

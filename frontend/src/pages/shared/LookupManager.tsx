@@ -1,8 +1,16 @@
-import { useEffect, useState, type FormEvent } from 'react';
+﻿import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { AppGrid } from '../../components/grid/AppGrid';
 import { ConfirmDialog } from '../../components/dialog/Dialog';
 import { lookupApi, lookupKinds, errorMessage, type LookupValue } from '../business/business.api';
 
 export default function LookupManager() {
+  const [nSelectedIdL, setSelectedId] = useState<number>();
+  const [oViewingL, setViewing] = useState<LookupValue | null>(null);
+  const oDialogRefL = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (oViewingL && !oDialogRefL.current?.open) oDialogRefL.current?.showModal();
+    if (!oViewingL && oDialogRefL.current?.open) oDialogRefL.current.close();
+  }, [oViewingL]);
   const [kind, setKind] = useState<string>('customer-status');
   const [rows, setRows] = useState<LookupValue[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +26,8 @@ export default function LookupManager() {
     setLoading(true);
     setError('');
     setRows([]);
+    setSelectedId(undefined);
+    setViewing(null);
     setEditing(undefined);
     setName('');
     lookupApi
@@ -128,54 +138,50 @@ export default function LookupManager() {
               </div>
             </form>
           </section>
-          <section className="control-card">
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr key={row.id}>
-                      <td>{row.name}</td>
-                      <td>
-                        <button
-                          className="secondary"
-                          disabled={busy}
-                          onClick={() => {
-                            setEditing(row.id);
-                            setName(row.name);
-                          }}
-                        >
-                          Update
-                        </button>
-                        <button
-                          className="danger"
-                          disabled={busy}
-                          onClick={() => {
-                            setDeleteError('');
-                            setDeleting(row);
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {!rows.length && (
-                    <tr>
-                      <td colSpan={2}>No values yet.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <AppGrid
+            gridId="lookup-grid"
+            title="Lookup values"
+            rowLabel="values"
+            rows={rows}
+            columns={[{ key: 'name', label: 'Name' }]}
+            selectedId={nSelectedIdL}
+            onSelect={(oRowP) => setSelectedId(oRowP.id)}
+            actionsDisabled={busy}
+            onView={setViewing}
+            onUpdate={(oRowP) => {
+              setEditing(oRowP.id);
+              setName(oRowP.name);
+            }}
+            onDelete={(oRowP) => {
+              setDeleteError('');
+              setDeleting(oRowP);
+            }}
+            emptyMessage="No values yet."
+          />
         </>
       )}
+      <dialog
+        ref={oDialogRefL}
+        className="dialog"
+        aria-labelledby="lookup-view-title"
+        onCancel={(oEventP) => {
+          oEventP.preventDefault();
+          setViewing(null);
+        }}
+      >
+        <h3 id="lookup-view-title">Lookup value details</h3>
+        <dl>
+          <dt>ID</dt>
+          <dd>{oViewingL?.id}</dd>
+          <dt>Type</dt>
+          <dd>{lookupKinds.find(([zKeyP]) => zKeyP === kind)?.[1] || kind}</dd>
+          <dt>Name</dt>
+          <dd>{oViewingL?.name}</dd>
+        </dl>
+        <button type="button" className="secondary" onClick={() => setViewing(null)}>
+          Close
+        </button>
+      </dialog>
       {deleting && (
         <ConfirmDialog
           open
